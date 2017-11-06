@@ -8,6 +8,8 @@ from FileUtil import getFilePathList
 from scipy.io import loadmat
 from os import listdir
 from librosa.core import cqt
+from librosa.core import load
+
 REALMIN = np.finfo(np.double).tiny
 
 def getConcatenateSpectrogram(target_path):
@@ -64,6 +66,7 @@ def getConcatenateCQT(target_path):
                     X_train = np.concatenate((X_train, abs(X_cqt)), axis=0)
     print(np.shape(X_train))
     return X_train
+
 
 #==== define path to the dataset
 target_path = '../../../data/metaData/gtzan_wav/'

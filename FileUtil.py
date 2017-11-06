@@ -109,7 +109,7 @@ def reshapeInputTensor(data_tensor):
 '''
 Average the activation map across both time and freq
 input: 
-    data_tensor: tensor, numSample x ch x freq x time
+    data_tensor: tensor, numSample x numFreq x numBlock
 output:
     feature_mat: array, numSample x ch
 '''
@@ -117,3 +117,19 @@ def averageActivationMap(data_tensor):
     tmp = np.mean(data_tensor, axis=2)
     feature_mat = np.mean(tmp, axis=2)
     return feature_mat
+
+
+'''
+Track-wise z-score standardization on tensor
+input:
+    data_tensor: tensor, numSample x numFreq x numBlock
+output:
+    data_tensor: normalized tensor, same dimensionality as input
+'''
+def standardizeTensorTrackwise(data_tensor):
+    numSample, numFreq, numBlock = np.shape(data_tensor)
+    for i in range(0, numSample):
+        avg = np.mean(data_tensor[i, :, :])
+        std = np.std(data_tensor[i, :, :])
+        data_tensor[i, :, :] = np.divide(data_tensor[i, :, :] - avg, std)
+    return data_tensor

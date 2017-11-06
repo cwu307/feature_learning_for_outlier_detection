@@ -5,22 +5,25 @@ CW @ GTCMT 2017
 
 import numpy as np
 from keras.models import load_model
-from FileUtil import averageActivationMap
-
+from FileUtil import averageActivationMap, standardizeTensorTrackwise
+preprocessingFlag = True
 
 #==== check the directories
-data_path = '../../../data/metaData/gtzan_cqt_maxnorm_log.npy'
+data_path = '../../../data/metaData/gtzan_cqt_maxnorm.npy'
 ae_path = './trained_models/ae.h5'
 ext1_path = './trained_models/ext1.h5'
 ext2_path = './trained_models/ext2.h5'
 ext3_path = './trained_models/ext3.h5'
 ext4_path = './trained_models/ext4.h5'
-save_path = '../metaData/gtzan_features_1000by_128.npy'
+save_path = '../../../data/metaData/gtzan_features_1000by_128.npy'
 
 
 #==== check the dimensionality
-X_train = np.load(data_path)
-
+X_train = np.load(data_path) #1000 x 80 x 1290
+if preprocessingFlag:
+    print('Warning: data preprocessing is on')
+    X_train = np.log10(X_train + 10e-10)
+    X_train = standardizeTensorTrackwise(X_train)
 
 X_train = np.expand_dims(X_train, axis=1)
 
@@ -42,4 +45,5 @@ m4 = averageActivationMap(lay4)
 
 X = np.concatenate((m1, m2, m3, m4), axis=1)
 
+print(np.shape(X))
 np.save(save_path, X)

@@ -119,8 +119,8 @@ def createModel_cqt_symmetric(input_dim, embedding_dim, selected_optimizer, sele
 '''
 Testing similar architecture as described in Keunwoochoi's paper
 '''
-def createModel_log_cqt(input_dim, embedding_dim, selected_optimizer, selected_loss):
-    print('using log magnitude CQT model')
+def createModel_cqt_ae(input_dim, embedding_dim, selected_optimizer, selected_loss):
+    print('using magnitude CQT model')
     input = Input(shape=(1, input_dim, 1290)) #1 x 80 x 1290
     out1 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(input) #32 x 80 x 1290
     out1 = BatchNormalization()(out1)
