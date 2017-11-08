@@ -133,3 +133,4 @@ def standardizeTensorTrackwise(data_tensor):
         std = np.std(data_tensor[i, :, :])
         data_tensor[i, :, :] = np.divide(data_tensor[i, :, :] - avg, std)
     return data_tensor
+
