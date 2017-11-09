@@ -8,7 +8,7 @@ CW @ GTCMT 2017
 
 import numpy as np
 import keras.backend as K
-from keras.layers import Input, Dense, Convolution2D, MaxPooling2D, Conv2DTranspose, AveragePooling2D, UpSampling2D, BatchNormalization
+from keras.layers import Input, Dense, Convolution2D, MaxPooling2D, Conv2DTranspose, GlobalAveragePooling2D, UpSampling2D, BatchNormalization, Flatten
 from keras.models import Model
 
 def createModel(input_dim, embedding_dim, selected_optimizer, selected_loss):
@@ -167,29 +167,31 @@ Testing similar architecture as described in Keunwoochoi's paper
 def createModel_cqt_classification_fma_medium(input_dim, input_dim2, selected_optimizer, selected_loss):
     print('using magnitude CQT model')
     input = Input(shape=(1, input_dim, input_dim2)) #1 x 80 x 1280
-    out1 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(input) #32 x 80 x 1290
+    out1 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(input) #32 x 80 x 1280
     out1 = BatchNormalization()(out1)
-    out1 = MaxPooling2D((2, 5), padding='same', data_format='channels_first')(out1)  #32 x 40 x 258
-    out2 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(out1) #32 x 40 x 258
+    out1 = MaxPooling2D((2, 4), padding='same', data_format='channels_first')(out1)  #32 x 40 x 320
+    out2 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(out1) #32 x 40 x 320
     out2 = BatchNormalization()(out2)
-    out2 = MaxPooling2D((2, 3), padding='same', data_format='channels_first')(out2) #32 x 20 x 86
-    out3 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(out2) #32 x 20 x 86
+    out2 = MaxPooling2D((2, 4), padding='same', data_format='channels_first')(out2) #32 x 20 x 80
+    out3 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(out2) #32 x 20 x 80
     out3 = BatchNormalization()(out3)
-    out3 = MaxPooling2D((2, 2), padding='same', data_format='channels_first')(out3)  #32 x 10 x 43
-
-    out4 = Convolution2D(embedding_dim, (1, 1), activation='relu', padding='same', data_format='channels_first')(out3) #embed_dim x 10 x 43
+    out3 = MaxPooling2D((2, 4), padding='same', data_format='channels_first')(out3)  #32 x 10 x 20
+    out4 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(out3) #32 x 10 x 20
     out4 = BatchNormalization()(out4)
+    out4 = MaxPooling2D((2, 4), padding='same', data_format='channels_first')(out4)  #32 x 5 x 5
 
-    out5 = Dense(430, activation='relu')(out4)
-    output = Dense(16, activation='softmax')(out5)
+    out5 = GlobalAveragePooling2D(data_format='channels_first')(out4) #32
+    out6 = Dense(32, activation='relu')(out5)
+    output = Dense(16, activation='softmax')(out6)
 
     #==== create model
     classifier = Model(input, output)
     layer1_extractor = Model(input, out1)
     layer2_extractor = Model(input, out2)
     layer3_extractor = Model(input, out3)
-    bottleneck_extractor = Model(input, out4)
+    layer4_extractor = Model(input, out4)
+    layer5_extractor = Model(input, out5)
 
     #==== compile model
-    autoencoder.compile(optimizer=selected_optimizer, loss=selected_loss, metrics=['accuracy'])
-    return classifier, layer1_extractor, layer2_extractor, layer3_extractor, bottleneck_extractor
+    classifier.compile(optimizer=selected_optimizer, loss=selected_loss, metrics=['acc'])
+    return classifier, layer1_extractor, layer2_extractor, layer3_extractor, layer4_extractor, layer5_extractor
