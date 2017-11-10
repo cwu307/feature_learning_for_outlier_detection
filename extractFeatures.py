@@ -14,12 +14,13 @@ ext1_path = './trained_models/ext1.h5'
 ext2_path = './trained_models/ext2.h5'
 ext3_path = './trained_models/ext3.h5'
 ext4_path = './trained_models/ext4.h5'
-ext4_path = './trained_models/ext5.h5'
-save_path = '../../../data/metaData/gtzan_features_1000by160_learned_from_fma_medium.npy'
+ext5_path = './trained_models/ext5.h5'
+save_path = '../../../data/metaData/gtzan_features_1000by160_learned_from_fma_medium2.npy'
 
 
 #==== check the dimensionality
 X_train = np.load(data_path) #1000 x 80 x 1290
+X_train = X_train[:,:,0:1280]
 if preprocessingFlag:
     print('Warning: data preprocessing is on')
     X_train = np.log10(X_train + 10e-10)

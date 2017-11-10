@@ -25,12 +25,12 @@ ext5_path = './trained_models/ext5.h5'
 #==== define DNN parameters
 input_dim = 80
 input_dim2 = 1280
-num_epochs = 60
+num_epochs = 200
 selected_optimizer = Adam(lr=0.0001)
 selected_loss = 'categorical_crossentropy'
 checker = ModelCheckpoint(check_path)
-tbcallback = TensorBoard(log_dir='./logs/', histogram_freq=0, write_graph=True)
-earlyStop  = EarlyStopping(monitor='loss', patience=3, mode='min')
+tbcallback = TensorBoard(log_dir='./logs/', histogram_freq=0, write_graph=False)
+earlyStop  = EarlyStopping(monitor='loss', patience=5, mode='min')
 reduce_lr  = ReduceLROnPlateau(monitor='loss', factor=0.2, patience=5, min_lr=0.00000001)
 classifier, ext1, ext2, ext3, ext4, ext5 = createModel_cqt_classification_fma_medium(input_dim, input_dim2, selected_optimizer, selected_loss)
 
@@ -42,24 +42,24 @@ genre_num_medium = all_metadata[1]
 y_train = genre_num_medium
 y_train = to_categorical(y_train)
 
-p = 0
-for data_path in all_list:
-
-    print('now training on:')
-    print(data_path)
-    X_train = np.load(data_path) #1000 x 80 x 1280
-    istart = p * 1000
-    iend   = istart + 1000
-    y_train_sub = y_train[istart:iend]
-    print(istart)
-    print(iend)
-    p += 1
-    if preprocessingFlag:
-        print('Warning: data preprocessing is on')
-        X_train = np.log10(X_train + 10e-10)
-        X_train = standardizeTensorTrackwise(X_train)
-    X_train = np.expand_dims(X_train, axis=1) #1000 x 1 x 80 x 1280
-    classifier.fit(X_train, y_train_sub, epochs=num_epochs, batch_size=4, callbacks=[checker, tbcallback])
+for e in range(0, num_epochs):
+    print("epoch %d" % e)
+    p = 0
+    for data_path in all_list:
+        print(data_path)
+        X_train = np.load(data_path) #1000 x 80 x 1280
+        istart = p * 1000
+        iend   = istart + 1000
+        y_train_sub = y_train[istart:iend]
+        print(istart)
+        print(iend)
+        p += 1
+        if preprocessingFlag:
+            print('Warning: data preprocessing is on')
+            X_train = np.log10(X_train + 10e-10)
+            X_train = standardizeTensorTrackwise(X_train)
+        X_train = np.expand_dims(X_train, axis=1) #1000 x 1 x 80 x 1280
+        classifier.fit(X_train, y_train_sub, epochs=1, batch_size=4, callbacks=[checker, tbcallback, earlyStop], verbose=1)
 
 #==== save results
 classifier.save(classifier_path)
