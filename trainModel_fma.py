@@ -9,7 +9,7 @@ from keras.utils import to_categorical
 from keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from dnnModels import createModel_cqt_classification_fma_medium
 from FileUtil import getFilePathList, standardizeTensorTrackwise
-preprocessingFlag = False
+preprocessingFlag = True
 
 #==== define data path
 data_folder = '../../../data/metaData/fma_cqt/'
@@ -25,7 +25,7 @@ ext5_path = './trained_models/ext5.h5'
 #==== define DNN parameters
 input_dim = 80
 input_dim2 = 1280
-num_epochs = 200
+num_epochs = 100
 selected_optimizer = Adam(lr=0.0001)
 selected_loss = 'categorical_crossentropy'
 checker = ModelCheckpoint(check_path)

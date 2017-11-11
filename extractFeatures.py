@@ -6,7 +6,7 @@ CW @ GTCMT 2017
 import numpy as np
 from keras.models import load_model
 from FileUtil import averageActivationMap, standardizeTensorTrackwise
-preprocessingFlag = False
+preprocessingFlag = True
 
 #==== check the directories
 data_path = '../../../data/metaData/gtzan_cqt_maxnorm.npy'
@@ -15,7 +15,7 @@ ext2_path = './trained_models/ext2.h5'
 ext3_path = './trained_models/ext3.h5'
 ext4_path = './trained_models/ext4.h5'
 ext5_path = './trained_models/ext5.h5'
-save_path = '../../../data/metaData/gtzan_features_1000by160_learned_from_fma_medium2.npy'
+save_path = '../../../data/metaData/gtzan_features_1000by160_learned_from_fma_medium_200ep.npy'
 
 
 #==== check the dimensionality
