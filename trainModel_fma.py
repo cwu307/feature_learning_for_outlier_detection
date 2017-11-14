@@ -1,5 +1,5 @@
 '''
-This script is to extract train a basic auto-encoder for feature learning project
+This script is to extract train a basic CNN for feature learning project
 CW @ GTCMT 2017
 '''
 
@@ -12,7 +12,7 @@ from FileUtil import getFilePathList, standardizeTensorTrackwise
 preprocessingFlag = True
 
 #==== define data path
-data_folder = '../../../data/metaData/fma_cqt/'
+data_folder = '../../../data/metaData/fma_medium_cqt_recombined/'
 metadata_path = '../../../data/fma_metadata/fma_medium_metadata_cw_parsed.npy'
 check_path = './trained_models/checkpoint.h5'
 classifier_path = './trained_models/ae.h5'
@@ -25,7 +25,7 @@ ext5_path = './trained_models/ext5.h5'
 #==== define DNN parameters
 input_dim = 80
 input_dim2 = 1280
-num_epochs = 100
+num_epochs = 60
 selected_optimizer = Adam(lr=0.0001)
 selected_loss = 'categorical_crossentropy'
 checker = ModelCheckpoint(check_path)
@@ -47,19 +47,21 @@ for e in range(0, num_epochs):
     p = 0
     for data_path in all_list:
         print(data_path)
-        X_train = np.load(data_path) #1000 x 80 x 1280
-        istart = p * 1000
-        iend   = istart + 1000
+        X_train = np.load(data_path) #5000 x 80 x 1280
+        istart = p * 5000
+        iend   = istart + 5000
         y_train_sub = y_train[istart:iend]
         print(istart)
         print(iend)
         p += 1
         if preprocessingFlag:
             print('Warning: data preprocessing is on')
-            X_train = np.log10(X_train + 10e-10)
+            X_train = 10 * np.log10(np.maximum(X_train, 10e-6))
+            X_train =  X_train - np.max(X_train)
+            X_train = np.maximum(X_train, -80)
             X_train = standardizeTensorTrackwise(X_train)
-        X_train = np.expand_dims(X_train, axis=1) #1000 x 1 x 80 x 1280
-        classifier.fit(X_train, y_train_sub, epochs=1, batch_size=4, callbacks=[checker, tbcallback, earlyStop], verbose=1)
+        X_train = np.expand_dims(X_train, axis=1) #5000 x 1 x 80 x 1280
+        classifier.fit(X_train, y_train_sub, epochs=1, batch_size=4, callbacks=[checker, tbcallback, earlyStop], verbose=1, shuffle=True)
 
 #==== save results
 classifier.save(classifier_path)

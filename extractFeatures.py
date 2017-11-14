@@ -23,7 +23,9 @@ X_train = np.load(data_path) #1000 x 80 x 1290
 X_train = X_train[:,:,0:1280]
 if preprocessingFlag:
     print('Warning: data preprocessing is on')
-    X_train = np.log10(X_train + 10e-10)
+    X_train = 10 * np.log10(np.maximum(X_train, 10e-6))
+    X_train = X_train - np.max(X_train)
+    X_train = np.maximum(X_train, -80)
     X_train = standardizeTensorTrackwise(X_train)
 
 X_train = np.expand_dims(X_train, axis=1)

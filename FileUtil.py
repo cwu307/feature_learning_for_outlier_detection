@@ -131,6 +131,9 @@ def standardizeTensorTrackwise(data_tensor):
     for i in range(0, numSample):
         avg = np.mean(data_tensor[i, :, :])
         std = np.std(data_tensor[i, :, :])
-        data_tensor[i, :, :] = np.divide(data_tensor[i, :, :] - avg, std)
+        if std != 0:
+            data_tensor[i, :, :] = np.divide(data_tensor[i, :, :] - avg + 10e-6, std)
+        else:
+            data_tensor[i, :, :] = 0 * data_tensor[i, :, :]
     return data_tensor
 
