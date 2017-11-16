@@ -27,7 +27,7 @@ ext5_path = './trained_models_unsupervised/ext5.h5'
 input_dim = 80
 input_dim2 = 1280
 embed_dim = 32
-num_epochs = 60
+num_epochs = 10 #60
 selected_optimizer = Adam(lr=0.0001)
 selected_loss = 'mean_squared_logarithmic_error'
 checker = ModelCheckpoint(check_path)

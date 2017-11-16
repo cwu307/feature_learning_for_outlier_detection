@@ -5,17 +5,23 @@ CW @ GTCMT 2017
 
 import numpy as np
 from keras.models import load_model
-from FileUtil import averageActivationMap, standardizeTensorTrackwise
+from FileUtil import averageActivationMap, standardizeTensorTrackwise, normalizeTensorTrackwiseL1
 preprocessingFlag = False
+pdfFlag = True
 
 #==== check the directories
 data_path = '../../../data/metaData/gtzan_cqt_maxnorm.npy'
-ext1_path = './trained_models/ext1.h5'
-ext2_path = './trained_models/ext2.h5'
-ext3_path = './trained_models/ext3.h5'
-ext4_path = './trained_models/ext4.h5'
-ext5_path = './trained_models/ext5.h5'
-save_path = '../../../data/metaData/gtzan_features_1000by160_learned_from_fma_medium_60ep_nostandardized.npy'
+# ext1_path = './trained_models/ext1.h5'
+# ext2_path = './trained_models/ext2.h5'
+# ext3_path = './trained_models/ext3.h5'
+# ext4_path = './trained_models/ext4.h5'
+# ext5_path = './trained_models/ext5.h5'
+ext1_path = './trained_models_unsupervised/ext1.h5'
+ext2_path = './trained_models_unsupervised/ext2.h5'
+ext3_path = './trained_models_unsupervised/ext3.h5'
+ext4_path = './trained_models_unsupervised/ext4.h5'
+ext5_path = './trained_models_unsupervised/ext5.h5'
+save_path = '../../../data/metaData/gtzan_features_1000by160_learned_from_fma_medium_10ep_logmse_unsupervised.npy'
 
 
 #==== check the dimensionality
@@ -27,7 +33,9 @@ if preprocessingFlag:
     X_train = X_train - np.max(X_train)
     X_train = np.maximum(X_train, -80)
     X_train = standardizeTensorTrackwise(X_train)
-
+if pdfFlag:
+    print('Normalize T-F representation as joint pdf')
+    X_train = normalizeTensorTrackwiseL1(X_train)
 X_train = np.expand_dims(X_train, axis=1)
 
 ext1_model = load_model(ext1_path)
@@ -47,8 +55,7 @@ m1 = averageActivationMap(lay1)
 m2 = averageActivationMap(lay2)
 m3 = averageActivationMap(lay3)
 m4 = averageActivationMap(lay4)
-m5 = lay5
-
+m5 = averageActivationMap(lay5)
 X = np.concatenate((m1, m2, m3, m4, m5), axis=1)
 
 print(np.shape(X))
