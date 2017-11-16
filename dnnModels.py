@@ -119,53 +119,57 @@ def createModel_cqt_symmetric(input_dim, embedding_dim, selected_optimizer, sele
 '''
 Testing similar architecture as described in Keunwoochoi's paper
 '''
-def createModel_cqt_ae(input_dim, embedding_dim, selected_optimizer, selected_loss):
-    print('using magnitude CQT model')
-    input = Input(shape=(1, input_dim, 1290)) #1 x 80 x 1290
-    out1 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(input) #32 x 80 x 1290
+def createModel_cqt_ae(input_dim, input_dim2, embedding_dim, selected_optimizer, selected_loss):
+    print('autoencoder model')
+    input = Input(shape=(1, input_dim, input_dim2)) #1 x 80 x 1280
+    out1 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(input) #32 x 80 x 1280
     out1 = BatchNormalization()(out1)
-    out1 = MaxPooling2D((2, 5), padding='same', data_format='channels_first')(out1)  #32 x 40 x 258
-    out2 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(out1) #32 x 40 x 258
+    out1 = MaxPooling2D((2, 4), padding='same', data_format='channels_first')(out1)  #32 x 40 x 320
+    out2 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(out1) #32 x 40 x 320
     out2 = BatchNormalization()(out2)
-    out2 = MaxPooling2D((2, 3), padding='same', data_format='channels_first')(out2) #32 x 20 x 86
-    out3 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(out2) #32 x 20 x 86
+    out2 = MaxPooling2D((2, 4), padding='same', data_format='channels_first')(out2) #32 x 20 x 80
+    out3 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(out2) #32 x 20 x 80
     out3 = BatchNormalization()(out3)
-    out3 = MaxPooling2D((2, 2), padding='same', data_format='channels_first')(out3)  #32 x 10 x 43
-
-    encoded = Convolution2D(embedding_dim, (1, 1), activation='relu', padding='same', data_format='channels_first')(out3) #embed_dim x 10 x 43
-    encoded = BatchNormalization()(encoded)
-
-    out4 = UpSampling2D((2, 2), data_format='channels_first')(encoded)  #32 x 20 x 86
-    out4 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(out4)  #32 x 20 x 86
+    out3 = MaxPooling2D((2, 4), padding='same', data_format='channels_first')(out3)  #32 x 10 x 20
+    out4 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(out3) #32 x 10 x 20
     out4 = BatchNormalization()(out4)
-    out5 = UpSampling2D((2, 3), data_format='channels_first')(out4)  #32 x 40 x 258
-    out5 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(out5)  #32 x 40 x 258
+    out4 = MaxPooling2D((2, 4), padding='same', data_format='channels_first')(out4)  #32 x 5 x 5
+
+    encoded = Convolution2D(embedding_dim, (1, 1), activation='relu', padding='same', data_format='channels_first')(out4) #embed_dim x 5 x 5
+    encoded = BatchNormalization()(encoded)
+    
+    out5 = UpSampling2D((2, 4), data_format='channels_first')(encoded)  #32 x 10 x 20
+    out5 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(out5)  #32 x 10 x 20
     out5 = BatchNormalization()(out5)
-    out6 = UpSampling2D((2, 5), data_format='channels_first')(out5)  #32 x 80 x 1290
-    out6 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(out6)  # 32 x 40 x 258
+    out6 = UpSampling2D((2, 4), data_format='channels_first')(out5)  #32 x 20 x 80
+    out6 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(out6)  #32 x 20 x 80
     out6 = BatchNormalization()(out6)
-
-    output = Convolution2D(1, (1, 1), activation='relu', padding='same', data_format='channels_first')(out6) #1 x 80 x 1290
-
-
+    out7 = UpSampling2D((2, 4), data_format='channels_first')(out6)  #32 x 40 x 320
+    out7 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(out7)  #32 x 40 x 320
+    out7 = BatchNormalization()(out7)
+    out8 = UpSampling2D((2, 4), data_format='channels_first')(out7)  #32 x 80 x 1280
+    out8 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(out8)  # 32 x 40 x 1280
+    out8 = BatchNormalization()(out8)
+    output = Convolution2D(1, (1, 1), activation='sigmoid', padding='same', data_format='channels_first')(out8) #1 x 80 x 1280
 
     #==== create model
     autoencoder = Model(input, output)
     layer1_extractor = Model(input, out1)
     layer2_extractor = Model(input, out2)
     layer3_extractor = Model(input, out3)
+    layer4_extractor = Model(input, out4)
     bottleneck_extractor = Model(input, encoded)
 
 
     #==== compile model
     autoencoder.compile(optimizer=selected_optimizer, loss=selected_loss, metrics=['mae'])
-    return autoencoder, layer1_extractor, layer2_extractor, layer3_extractor, bottleneck_extractor
+    return autoencoder, layer1_extractor, layer2_extractor, layer3_extractor, layer4_extractor, bottleneck_extractor
 
 '''
 Testing similar architecture as described in Keunwoochoi's paper
 '''
 def createModel_cqt_classification_fma_medium(input_dim, input_dim2, selected_optimizer, selected_loss):
-    print('using magnitude CQT model')
+    print('classifier model')
     input = Input(shape=(1, input_dim, input_dim2)) #1 x 80 x 1280
     out1 = Convolution2D(32, (3, 3), activation='relu', padding='same', data_format='channels_first')(input) #32 x 80 x 1280
     out1 = BatchNormalization()(out1)

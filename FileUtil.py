@@ -137,3 +137,19 @@ def standardizeTensorTrackwise(data_tensor):
             data_tensor[i, :, :] = 0 * data_tensor[i, :, :]
     return data_tensor
 
+'''
+Track-wise L1 norm normalization on tensor
+input:
+    data_tensor: tensor, numSample x numFreq x numBlock
+output:
+    data_tensor: normalized tensor, same dimensionality as input
+'''
+def normalizeTensorTrackwiseL1(data_tensor):
+    numSample, numFreq, numBlock = np.shape(data_tensor)
+    for i in range(0, numSample):
+        l1_norm = np.sum(abs(data_tensor[i, :, :]))
+        if l1_norm != 0:
+            data_tensor[i, :, :] = np.divide(data_tensor[i, :, :], l1_norm)
+        else:
+            data_tensor[i, :, :] = 0 * data_tensor[i, :, :]
+    return data_tensor

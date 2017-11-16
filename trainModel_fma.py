@@ -9,7 +9,7 @@ from keras.utils import to_categorical
 from keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from dnnModels import createModel_cqt_classification_fma_medium
 from FileUtil import getFilePathList, standardizeTensorTrackwise
-preprocessingFlag = True
+preprocessingFlag = False
 
 #==== define data path
 data_folder = '../../../data/metaData/fma_medium_cqt_recombined/'
