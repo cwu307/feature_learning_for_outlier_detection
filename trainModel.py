@@ -9,8 +9,8 @@ from keras.utils import to_categorical
 from keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from dnnModels import createModel_cqt_ae
 from FileUtil import getFilePathList, standardizeTensorTrackwise, normalizeTensorTrackwiseL1
-preprocessingFlag = False
-pdfFlag = True
+preprocessingFlag = True
+pdfFlag = False
 
 #==== define data path
 data_folder = '../../../data/metaData/fma_medium_cqt_recombined/'
@@ -27,9 +27,9 @@ ext5_path = './trained_models_unsupervised/ext5.h5'
 input_dim = 80
 input_dim2 = 1280
 embed_dim = 32
-num_epochs = 10 #60
-selected_optimizer = Adam(lr=0.0001)
-selected_loss = 'mean_squared_logarithmic_error'
+num_epochs = 60
+selected_optimizer = Adam(lr=0.001)
+selected_loss = 'mse'
 checker = ModelCheckpoint(check_path)
 tbcallback = TensorBoard(log_dir='./logs/', histogram_freq=0, write_graph=False)
 earlyStop  = EarlyStopping(monitor='loss', patience=5, mode='min')
