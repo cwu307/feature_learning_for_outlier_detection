@@ -109,13 +109,17 @@ def reshapeInputTensor(data_tensor):
 '''
 Average the activation map across both time and freq
 input: 
-    data_tensor: tensor, numSample x numFreq x numBlock
+    data_tensor: tensor, numSample x ch x numFreq x numBlock
 output:
     feature_mat: array, numSample x ch
 '''
 def averageActivationMap(data_tensor):
-    tmp = np.mean(data_tensor, axis=2)
-    feature_mat = np.mean(tmp, axis=2)
+    numSample, ch, numFreq, numBlock = np.shape(data_tensor)
+    feature_mat = np.zeros((numSample, ch))
+    for i in range(0, numSample):
+        for j in range(0, ch):
+            current_mat = data_tensor[i, j, :, :]
+            feature_mat[i, j] = np.mean(current_mat)
     return feature_mat
 
 

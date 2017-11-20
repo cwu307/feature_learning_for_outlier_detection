@@ -235,3 +235,201 @@ def createModel_cqt_classification_fma_small(input_dim, input_dim2, selected_opt
     #==== compile model
     classifier.compile(optimizer=selected_optimizer, loss=selected_loss, metrics=['acc'])
     return classifier, layer1_extractor, layer2_extractor, layer3_extractor, layer4_extractor, layer5_extractor
+
+
+'''
+Use random weights to test architecture
+'''
+def createModel_cqt_random(input_dim, input_dim2, selected_optimizer, selected_loss):
+    print('classifier model')
+    input = Input(shape=(1, input_dim, input_dim2)) #1 x 80 x 1280 
+    out1 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(input) #32 x 80 x 1280
+    out1 = BatchNormalization(axis=1)(out1)
+    out1 = MaxPooling2D((2, 2), padding='same', data_format='channels_first')(out1)  #32 x 40 x 320
+    out2 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(out1) #32 x 40 x 320
+    out2 = BatchNormalization(axis=1)(out2)
+    out2 = MaxPooling2D((2, 2), padding='same', data_format='channels_first')(out2) #32 x 20 x 80
+    out3 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(out2) #32 x 20 x 80
+    out3 = BatchNormalization(axis=1)(out3)
+    out3 = MaxPooling2D((2, 2), padding='same', data_format='channels_first')(out3)  #32 x 10 x 20
+    out4 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(out3) #32 x 10 x 20
+    out4 = BatchNormalization(axis=1)(out4)
+    out4 = MaxPooling2D((2, 2), padding='same', data_format='channels_first')(out4)  #32 x 5 x 5
+
+    out5 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(out4) #32 x 3 x 5
+    out5 = BatchNormalization(axis=1)(out5)
+    out5 = MaxPooling2D((3, 5), padding='same', data_format='channels_first')(out5)  #32 x 1 x 1
+    
+    out6 = GlobalAveragePooling2D(data_format='channels_first')(out5) #same as previous
+    #out7 = Dense(32, activation='elu')(out6)
+    output = Dense(16, activation='softmax')(out6)
+
+    #==== create model
+    classifier = Model(input, output)
+    layer1_extractor = Model(input, out1)
+    layer2_extractor = Model(input, out2)
+    layer3_extractor = Model(input, out3)
+    layer4_extractor = Model(input, out4)
+    layer5_extractor = Model(input, out5)
+    #layer6_extractor = Model(input, out4i)
+
+    #==== compile model
+    classifier.compile(optimizer=selected_optimizer, loss=selected_loss, metrics=['acc'])
+    return classifier, layer1_extractor, layer2_extractor, layer3_extractor, layer4_extractor, layer5_extractor
+
+
+'''
+Use random weights to test architecture (try stft as input representation)
+'''
+def createModel_stft_random(input_dim, input_dim2, selected_optimizer, selected_loss):
+    print('classifier model')
+    input = Input(shape=(1, input_dim, input_dim2)) #1 x 512 x 1280 
+    out1 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first')(input) #32 x 512 x 1280
+    out1 = BatchNormalization()(out1)
+    out1 = MaxPooling2D((4, 4), padding='same', data_format='channels_first')(out1)  #32 x 128 x 320
+    out2 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first')(out1) #32 x 128 x 320
+    out2 = BatchNormalization()(out2)
+    out2 = MaxPooling2D((2, 4), padding='same', data_format='channels_first')(out2) #32 x 64 x 80
+    out3 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first')(out2) #32 x 64 x 80
+    out3 = BatchNormalization()(out3)
+    out3 = MaxPooling2D((4, 4), padding='same', data_format='channels_first')(out3)  #32 x 16 x 20
+    out4 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first')(out3) #32 x 16 x 20
+    out4 = BatchNormalization()(out4)
+    out4 = MaxPooling2D((4, 4), padding='same', data_format='channels_first')(out4)  #32 x 4 x 5
+
+    # out4i = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first')(out4) #32 x 5 x 5
+    # out4i = BatchNormalization()(out4i)
+    # out4i = MaxPooling2D((5, 5), padding='same', data_format='channels_first')(out4i)  #32 x 1 x 1
+
+    out5 = GlobalAveragePooling2D(data_format='channels_first')(out4) #same as previous
+    out6 = Dense(32, activation='relu')(out5)
+    output = Dense(16, activation='softmax')(out6)
+
+    #==== create model
+    classifier = Model(input, output)
+    layer1_extractor = Model(input, out1)
+    layer2_extractor = Model(input, out2)
+    layer3_extractor = Model(input, out3)
+    layer4_extractor = Model(input, out4)
+    layer5_extractor = Model(input, out5)
+    #layer6_extractor = Model(input, out4i)
+
+    #==== compile model
+    classifier.compile(optimizer=selected_optimizer, loss=selected_loss, metrics=['acc'])
+    return classifier, layer1_extractor, layer2_extractor, layer3_extractor, layer4_extractor, layer5_extractor
+
+'''
+Use random weights to test architecture
+'''
+def createModel_cqt96_random(input_dim, input_dim2, selected_optimizer, selected_loss):
+    print('classifier model')
+    input = Input(shape=(1, input_dim, input_dim2)) #1 x 96 x 1280 
+    out1 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(input) #32 x 96 x 1280
+    out1 = BatchNormalization(axis=1)(out1)
+    out1 = MaxPooling2D((2, 4), padding='same', data_format='channels_first')(out1)  #32 x 48 x 320
+    out2 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(out1) #32 x 48 x 320
+    out2 = BatchNormalization(axis=1)(out2)
+    out2 = MaxPooling2D((2, 4), padding='same', data_format='channels_first')(out2) #32 x 24 x 80
+    out3 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(out2) #32 x 24 x 80
+    out3 = BatchNormalization(axis=1)(out3)
+    out3 = MaxPooling2D((2, 4), padding='same', data_format='channels_first')(out3)  #32 x 12 x 20
+    out4 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(out3) #32 x 12 x 20
+    out4 = BatchNormalization(axis=1)(out4)
+    out4 = MaxPooling2D((4, 4), padding='same', data_format='channels_first')(out4)  #32 x 3 x 5
+
+    out5 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(out4) #32 x 3 x 5
+    out5 = BatchNormalization(axis=1)(out5)
+    out5 = MaxPooling2D((3, 5), padding='same', data_format='channels_first')(out5)  #32 x 1 x 1
+    
+    out6 = GlobalAveragePooling2D(data_format='channels_first')(out5) #same as previous
+    out7 = Dense(32, activation='elu')(out6)
+    output = Dense(16, activation='softmax')(out7)
+
+    #==== create model
+    classifier = Model(input, output)
+    layer1_extractor = Model(input, out1)
+    layer2_extractor = Model(input, out2)
+    layer3_extractor = Model(input, out3)
+    layer4_extractor = Model(input, out4)
+    layer5_extractor = Model(input, out5)
+
+    #==== compile model
+    classifier.compile(optimizer=selected_optimizer, loss=selected_loss, metrics=['acc'])
+    return classifier, layer1_extractor, layer2_extractor, layer3_extractor, layer4_extractor, layer5_extractor
+
+def createModel_mel96_keunwoo_random(input_dim, input_dim2, selected_optimizer, selected_loss):
+    print('classifier model')
+    input = Input(shape=(1, input_dim, input_dim2)) #1 x 96 x 1360 
+    out1 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(input) #32 x 96 x 1360
+    out1 = BatchNormalization(axis=1)(out1)
+    out1 = MaxPooling2D((2, 4), padding='same', data_format='channels_first')(out1)  #32 x 48 x 340
+    out2 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(out1) #32 x 48 x 340
+    out2 = BatchNormalization(axis=1)(out2)
+    out2 = MaxPooling2D((4, 4), padding='same', data_format='channels_first')(out2) #32 x 12 x 85
+    out3 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(out2) #32 x 12 x 85
+    out3 = BatchNormalization(axis=1)(out3)
+    out3 = MaxPooling2D((4, 5), padding='same', data_format='channels_first')(out3)  #32 x 3 x 17
+    out4 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(out3) #32 x 3 x 17
+    out4 = BatchNormalization(axis=1)(out4)
+    out4 = MaxPooling2D((2, 4), padding='same', data_format='channels_first')(out4)  #32 x 2 x 5
+
+    out5 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(out4) #32 x 3 x 5
+    out5 = BatchNormalization(axis=1)(out5)
+    out5 = MaxPooling2D((4, 4), padding='same', data_format='channels_first')(out5)  #32 x 1 x 1
+    
+    out6 = GlobalAveragePooling2D(data_format='channels_first')(out5) #same as previous
+    out7 = Dense(32, activation='elu')(out6)
+    output = Dense(16, activation='softmax')(out7)
+
+    #==== create model
+    classifier = Model(input, output)
+    layer1_extractor = Model(input, out1)
+    layer2_extractor = Model(input, out2)
+    layer3_extractor = Model(input, out3)
+    layer4_extractor = Model(input, out4)
+    layer5_extractor = Model(input, out5)
+
+    #==== compile model
+    classifier.compile(optimizer=selected_optimizer, loss=selected_loss, metrics=['acc'])
+    return classifier, layer1_extractor, layer2_extractor, layer3_extractor, layer4_extractor, layer5_extractor
+
+
+'''
+Use random weights to test architecture
+'''
+def createModel_cqt_shallow_random(input_dim, input_dim2, selected_optimizer, selected_loss):
+    print('classifier model')
+    input = Input(shape=(1, input_dim, input_dim2)) #1 x 80 x 1280 
+    out1 = Convolution2D(40, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(input) #32 x 80 x 1280
+    out1 = BatchNormalization(axis=1)(out1)
+    out1 = MaxPooling2D((2, 2), padding='same', data_format='channels_first')(out1)  #32 x 40 x 320
+    out2 = Convolution2D(40, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(out1) #32 x 40 x 320
+    out2 = BatchNormalization(axis=1)(out2)
+    out2 = MaxPooling2D((2, 2), padding='same', data_format='channels_first')(out2) #32 x 20 x 80
+    out3 = Convolution2D(40, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(out2) #32 x 20 x 80
+    out3 = BatchNormalization(axis=1)(out3)
+    out3 = MaxPooling2D((2, 2), padding='same', data_format='channels_first')(out3)  #32 x 10 x 20
+    out4 = Convolution2D(40, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(out3) #32 x 10 x 20
+    out4 = BatchNormalization(axis=1)(out4)
+    # out4 = MaxPooling2D((2, 2), padding='same', data_format='channels_first')(out4)  #32 x 5 x 5
+
+    # out5 = Convolution2D(32, (3, 3), activation='elu', padding='same', data_format='channels_first', kernel_initializer='he_normal')(out4) #32 x 3 x 5
+    # out5 = BatchNormalization(axis=1)(out5)
+    # out5 = MaxPooling2D((3, 5), padding='same', data_format='channels_first')(out5)  #32 x 1 x 1
+    
+    out6 = GlobalAveragePooling2D(data_format='channels_first')(out4) #same as previous
+    #out7 = Dense(32, activation='elu')(out6)
+    output = Dense(16, activation='softmax')(out6)
+
+    #==== create model
+    classifier = Model(input, output)
+    layer1_extractor = Model(input, out1)
+    layer2_extractor = Model(input, out2)
+    layer3_extractor = Model(input, out3)
+    layer4_extractor = Model(input, out4)
+    # layer5_extractor = Model(input, out5)
+    #layer6_extractor = Model(input, out4i)
+
+    #==== compile model
+    classifier.compile(optimizer=selected_optimizer, loss=selected_loss, metrics=['acc'])
+    return classifier, layer1_extractor, layer2_extractor, layer3_extractor, layer4_extractor#, layer5_extractor

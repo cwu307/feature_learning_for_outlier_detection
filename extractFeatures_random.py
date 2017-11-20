@@ -4,25 +4,19 @@ CW @ GTCMT 2017
 '''
 
 import numpy as np
-from keras.models import load_model
+from keras.optimizers import Adam
 from FileUtil import averageActivationMap, standardizeTensorTrackwise, normalizeTensorTrackwiseL1
+from dnnModels import createModel_cqt_random, createModel_cqt_shallow_random
 preprocessingFlag = False
 pdfFlag = False
 
 #==== check the directories
+#data_path = '../../../data/metaData/gtzan_mel96_keunwoo_maxnorm.npy'
+#data_path = '../../../data/metaData/gtzan_mel96_maxnorm.npy'
 data_path = '../../../data/metaData/gtzan_cqt_maxnorm.npy'
-# ext1_path = './trained_models/ext1.h5'
-# ext2_path = './trained_models/ext2.h5'
-# ext3_path = './trained_models/ext3.h5'
-# ext4_path = './trained_models/ext4.h5'
-# ext5_path = './trained_models/ext5.h5'
-ext1_path = './trained_models_unsupervised/ext1.h5'
-ext2_path = './trained_models_unsupervised/ext2.h5'
-ext3_path = './trained_models_unsupervised/ext3.h5'
-ext4_path = './trained_models_unsupervised/ext4.h5'
-ext5_path = './trained_models_unsupervised/ext5.h5'
-save_path = '../../../data/metaData/gtzan_features_1000by160_learned_from_fma_small.npy'
-
+#data_path = '../../../data/metaData/gtzan_cqt96_maxnorm.npy'
+#data_path = '../../../data/metaData/gtzan_stft_maxnorm.npy'
+save_path = '../../../data/metaData/gtzan_features_1000by160_elu_mp22_withoutzscore_random.npy'
 
 #==== check the dimensionality
 X_train = np.load(data_path) #1000 x 80 x 1290
@@ -38,25 +32,27 @@ if pdfFlag:
     X_train = normalizeTensorTrackwiseL1(X_train)
 X_train = np.expand_dims(X_train, axis=1)
 
-ext1_model = load_model(ext1_path)
-ext2_model = load_model(ext2_path)
-ext3_model = load_model(ext3_path)
-ext4_model = load_model(ext4_path)
-ext5_model = load_model(ext5_path)
+input_dim = 80
+input_dim2 = 1280
+selected_optimizer = Adam(lr=0.0001)
+selected_loss = 'categorical_crossentropy'
+classifier, ext1, ext2, ext3, ext4, ext5 = createModel_cqt_random(input_dim, input_dim2, selected_optimizer, selected_loss)
 
-#32 x 4 = 128
-lay1 = ext1_model.predict(X_train, batch_size=1) #1000 x 32 x m1 x m2
-lay2 = ext2_model.predict(X_train, batch_size=1)
-lay3 = ext3_model.predict(X_train, batch_size=1)
-lay4 = ext4_model.predict(X_train, batch_size=1)
-lay5 = ext5_model.predict(X_train, batch_size=1)
+lay1 = ext1.predict(X_train, batch_size=1) #1000 x 32 x m1 x m2
+lay2 = ext2.predict(X_train, batch_size=1)
+lay3 = ext3.predict(X_train, batch_size=1)
+lay4 = ext4.predict(X_train, batch_size=1)
+lay5 = ext5.predict(X_train, batch_size=1)
 
 m1 = averageActivationMap(lay1)
 m2 = averageActivationMap(lay2)
 m3 = averageActivationMap(lay3)
 m4 = averageActivationMap(lay4)
 m5 = averageActivationMap(lay5)
+
 X = np.concatenate((m1, m2, m3, m4, m5), axis=1)
 
+
 print(np.shape(X))
+print('saving file to  %s' % save_path)
 np.save(save_path, X)
