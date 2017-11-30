@@ -136,7 +136,7 @@ def standardizeTensorTrackwise(data_tensor):
         avg = np.mean(data_tensor[i, :, :])
         std = np.std(data_tensor[i, :, :])
         if std != 0:
-            data_tensor[i, :, :] = np.divide(data_tensor[i, :, :] - avg + 10e-6, std)
+            data_tensor[i, :, :] = np.divide(data_tensor[i, :, :] - avg, std)
         else:
             data_tensor[i, :, :] = 0 * data_tensor[i, :, :]
     return data_tensor
@@ -156,4 +156,14 @@ def normalizeTensorTrackwiseL1(data_tensor):
             data_tensor[i, :, :] = np.divide(data_tensor[i, :, :], l1_norm)
         else:
             data_tensor[i, :, :] = 0 * data_tensor[i, :, :]
+    return data_tensor
+
+def convert2dB(data_tensor):
+    numSample, numFreq, numBlock = np.shape(data_tensor)
+    for i in range(0, numSample):
+        X = data_tensor[i, :, :]
+        X = 10 * np.log10(np.maximum(X, 10e-6))
+        X =  X - np.max(X)
+        X = np.maximum(X, -80)
+        data_tensor[i, :, :] = X
     return data_tensor
