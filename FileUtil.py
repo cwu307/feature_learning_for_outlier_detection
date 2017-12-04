@@ -142,6 +142,42 @@ def standardizeTensorTrackwise(data_tensor):
     return data_tensor
 
 '''
+z-score standardization on tensor (entirely)
+input:
+    data_tensor: tensor, numSample x numFreq x numBlock
+output:
+    data_tensor: normalized tensor, same dimensionality as input
+'''
+def standardizeEntireTensor(data_tensor):
+    numSample, numFreq, numBlock = np.shape(data_tensor)
+    avg = np.mean(data_tensor)
+    std = np.std(data_tensor)
+    if std != 0:
+        data_tensor = np.divide(data_tensor - avg, std)
+    else:
+        print('something is wrong!')
+    return data_tensor
+
+
+'''
+Track-wise min-max scaling on tensor
+input:
+    data_tensor: tensor, numSample x numFreq x numBlock
+output:
+    data_tensor: scaled tensor, same dimensionality as input
+'''
+def scaleTensorTrackwise(data_tensor):
+    numSample, numFreq, numBlock = np.shape(data_tensor)
+    for i in range(0, numSample):
+        minVal = np.min(data_tensor[i, :, :])
+        maxVal = np.max(data_tensor[i, :, :])
+        if (maxVal - minVal) != 0:
+            data_tensor[i, :, :] = np.divide(data_tensor[i, :, :] - minVal, maxVal-minVal)
+        else:
+            data_tensor[i, :, :] = 0 * data_tensor[i, :, :]
+    return data_tensor
+
+'''
 Track-wise L1 norm normalization on tensor
 input:
     data_tensor: tensor, numSample x numFreq x numBlock

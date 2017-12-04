@@ -21,7 +21,7 @@ ext5_path = './trained_models/ext5.h5'
 # ext3_path = './trained_models_unsupervised/ext3.h5'
 # ext4_path = './trained_models_unsupervised/ext4.h5'
 # ext5_path = './trained_models_unsupervised/ext5.h5'
-save_path = '../../../data/metaData/gtzan_features_1000by160_learned_from_fma_medium.npy'
+save_path = '../../../data/metaData/gtzan_features_1000by160_learned_from_fma_medium_30ep.npy'
 
 
 #==== check the dimensionality

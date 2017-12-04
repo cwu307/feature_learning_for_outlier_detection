@@ -5,32 +5,22 @@ CW @ GTCMT 2017
 
 import numpy as np
 from keras.optimizers import Adam
-from FileUtil import averageActivationMap, standardizeTensorTrackwise, normalizeTensorTrackwiseL1, convert2dB
-from dnnModels import createModel_cqt_random, createModel_cqt_shallow_random
+from FileUtil import averageActivationMap, standardizeTensorTrackwise, standardizeEntireTensor, convert2dB, scaleTensorTrackwise
+from dnnModels import createModel_cqt_random
 preprocessingFlag = True
-pdfFlag = False
 
 #==== check the directories
-#data_path = '../../../data/metaData/gtzan_mel96_keunwoo_maxnorm.npy'
-#data_path = '../../../data/metaData/gtzan_mel96_maxnorm.npy'
-data_path = '../../../data/metaData/gtzan_cqt_maxnorm.npy'
-#data_path = '../../../data/metaData/gtzan_cqt96_maxnorm.npy'
-#data_path = '../../../data/metaData/gtzan_stft_maxnorm.npy'
-save_path = '../../../data/metaData/gtzan_features_1000by160_elu_mp22_random.npy'
+#data_path = '../../../data/metaData/gtzan_cqt80_maxnorm.npy'
+data_path = '../../../data/metaData/reorganized_features/gtzan_mel96_maxnorm.npy'
+save_path = '../../../data/metaData/gtzan_features_1000by160_elu_mel96_random.npy'
 
 #==== check the dimensionality
 X_train = np.load(data_path) #1000 x 80 x 1290
 X_train = X_train[:,:,0:1280]
 if preprocessingFlag:
     print('Warning: data preprocessing is on')
-    # X_train = 10 * np.log10(np.maximum(X_train, 10e-6))
-    # X_train = X_train - np.max(X_train)
-    # X_train = np.maximum(X_train, -80)
     X_train = convert2dB(X_train)
     X_train = standardizeTensorTrackwise(X_train)
-if pdfFlag:
-    print('Normalize T-F representation as joint pdf')
-    X_train = normalizeTensorTrackwiseL1(X_train)
 X_train = np.expand_dims(X_train, axis=1)
 
 input_dim = 96
