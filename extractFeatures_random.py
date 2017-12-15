@@ -10,9 +10,9 @@ from dnnModels import createModel_cqt_random
 preprocessingFlag = True
 
 #==== check the directories
-#data_path = '../../../data/metaData/gtzan_cqt80_maxnorm.npy'
-data_path = '../../../data/metaData/reorganized_features/gtzan_mel96_maxnorm.npy'
-save_path = '../../../data/metaData/gtzan_features_1000by160_elu_mel96_random.npy'
+data_path = '../../../data/metaData/gtzan_cqt80_maxnorm.npy'
+#data_path = '../../../data/metaData/reorganized_features/gtzan_mel96_maxnorm.npy'
+save_path = '../../../data/metaData/gtzan_features_1000by160_elu_random_batch128.npy'
 
 #==== check the dimensionality
 X_train = np.load(data_path) #1000 x 80 x 1290
@@ -23,7 +23,7 @@ if preprocessingFlag:
     X_train = standardizeTensorTrackwise(X_train)
 X_train = np.expand_dims(X_train, axis=1)
 
-input_dim = 96
+input_dim = 80
 input_dim2 = 1280
 selected_optimizer = Adam(lr=0.0001)
 selected_loss = 'categorical_crossentropy'
